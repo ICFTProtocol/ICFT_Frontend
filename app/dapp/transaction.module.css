@@ -1,0 +1,23 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: -3px 0 25px;
+  padding: 12px 14px;
+  border: 1px solid #b9cead;
+  border-radius: 5px;
+  background: #f2f8e8;
+  color: #3e5c49;
+}
+
+.bar > div { display: grid; flex: 1; gap: 4px; }
+.bar span { color: #588064; font: 800 9px monospace; letter-spacing: .8px; }
+.bar b { font-size: 12px; line-height: 1.35; }
+.bar a { color: #1c6337; font-size: 12px; font-weight: 700; text-decoration: underline; white-space: nowrap; }
+.bar button, .retry { border: 0; background: none; padding: 0; color: #607d69; font: 700 11px "Space Grotesk", sans-serif; cursor: pointer; }
+.retry { color: #153d2d; white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .bar { align-items: flex-start; flex-wrap: wrap; }
+  .bar > div { flex-basis: 100%; }
+}

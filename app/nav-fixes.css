@@ -1,0 +1,9 @@
+.nav .wallet,
+.nav .wallet:visited {
+  color: #102016;
+  text-decoration: none;
+}
+
+.nav .wallet:hover {
+  color: #102016;
+}

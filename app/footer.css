@@ -1,0 +1,97 @@
+.footer {
+  overflow: hidden;
+  background: #071c13 !important;
+}
+
+.footerGrid {
+  padding-bottom: 52px !important;
+}
+
+.footerBrand {
+  display: grid;
+  place-items: center;
+  width: 164px;
+  height: 62px;
+  margin-bottom: 22px;
+  border-radius: 4px;
+  background: #edf1e9;
+}
+
+.footerBrand img {
+  width: 146px;
+  height: auto;
+}
+
+.footerSocials {
+  display: flex;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.footerSocials a {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #335243;
+  border-radius: 50%;
+  color: #dce8dc;
+}
+
+.footerSocials a:hover {
+  border-color: var(--acid);
+  background: #142e22;
+}
+
+.footerSocials svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.footerLinks a {
+  font-size: 13px;
+}
+
+.footerBottomLogo {
+  position: relative;
+  width: min(1180px, calc(100% - 48px));
+  height: 168px;
+  margin: auto;
+  border-top: 1px solid #244632;
+}
+
+.footerBottomLogo::before {
+  position: absolute;
+  top: 24px;
+  left: -5px;
+  color: #d9ebd8;
+  font-size: clamp(110px, 18vw, 246px);
+  font-weight: 900;
+  letter-spacing: -14px;
+  line-height: .8;
+  opacity: .1;
+  content: "ICFT";
+}
+
+.footerBase {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 760px) {
+  .footerBottomLogo {
+    width: min(100% - 32px, 1180px);
+    height: 104px;
+  }
+
+  .footerBottomLogo::before {
+    top: 24px;
+    font-size: 108px;
+    letter-spacing: -8px;
+  }
+}

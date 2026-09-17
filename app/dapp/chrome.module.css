@@ -1,0 +1,37 @@
+.side {
+  padding-top: 18px;
+}
+
+.side:before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 91px;
+  background: #edf1e9;
+  content: "";
+}
+
+.logo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 174px;
+  height: 65px;
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+  width: 174px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.caption {
+  position: relative;
+  z-index: 1;
+  margin: 22px 11px 30px;
+  color: #365244;
+}
