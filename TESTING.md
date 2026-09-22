@@ -35,3 +35,24 @@ Use a dedicated Ethereum Sepolia wallet. Never use a wallet containing mainnet f
 - A rejected wallet request or reverted contract call appears as `TRANSACTION NEEDS ATTENTION` and does not claim success.
 - No flow asks for a seed phrase or private key.
 - Before a production release, record the wallet address, transaction hash, result, browser, viewport and any unexpected behavior for every case above.
+
+## Recorded Sepolia Baseline - 2026-09-22
+
+The following manual smoke-test passed against the deployed Ethereum Sepolia proxies. It used dedicated testnet accounts only; private keys are intentionally not recorded.
+
+| Scenario | Result |
+| --- | --- |
+| Supply `10 ICFT` to the liquidity vault | Passed |
+| Redeem `2 icftLP` shares | Passed |
+| Deposit `0.05 ETH` as collateral | Passed |
+| Borrow `100 ICFT` | Passed |
+| Attempt an unsafe full collateral withdrawal with active debt | Reverted as expected by the LTV check |
+| Partial ICFT repayment and full repayment with `MAX` | Passed |
+| Withdraw ETH after debt reached zero | Passed |
+| Keeper indexed both the existing LP account and the test borrower | Passed |
+
+The live protocol has a `$100` minimum borrow. The dApp reads this value from `LendingPool.minimumBorrowUSD()` and shows it in the borrow flow.
+
+`wBTC` and `wstETH` deposit flows remain pending a team-controlled source of those currently configured Sepolia test assets. Do not deploy replacement token mocks for this check: the active LendingPool only accepts its registered collateral addresses.
+
+Before publishing a demo, add the Etherscan transaction hashes, browser/version, viewport and tester initials to the release record maintained by the team.

@@ -34,6 +34,7 @@ export const lendingPoolAbi = [
   { type: "function", name: "getCollateralBalance", stateMutability: "view", inputs: [{ name: "user", type: "address" }, { name: "asset", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getAvailableBorrow", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getCurrentInterest", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "minimumBorrowUSD", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "isLiquidatable", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "bool" }] },
   { type: "function", name: "depositCollateral", stateMutability: "payable", inputs: [], outputs: [] },
   { type: "function", name: "depositCollateral", stateMutability: "nonpayable", inputs: [{ name: "asset", type: "address" }, { name: "amount", type: "uint256" }], outputs: [] },
@@ -41,6 +42,13 @@ export const lendingPoolAbi = [
   { type: "function", name: "withdrawCollateral", stateMutability: "nonpayable", inputs: [{ name: "asset", type: "address" }, { name: "amount", type: "uint256" }], outputs: [] },
   { type: "function", name: "borrow", stateMutability: "nonpayable", inputs: [{ name: "amountICFT", type: "uint256" }], outputs: [] },
   { type: "function", name: "repay", stateMutability: "nonpayable", inputs: [{ name: "amountICFT", type: "uint256" }], outputs: [] }
+  ,{ type: "error", name: "BorrowBelowMinimum", inputs: [] }
+  ,{ type: "error", name: "BorrowExceedsLTV", inputs: [] }
+  ,{ type: "error", name: "InsufficientLiquidity", inputs: [] }
+  ,{ type: "error", name: "InsufficientCollateral", inputs: [] }
+  ,{ type: "error", name: "NoDebt", inputs: [] }
+  ,{ type: "error", name: "NothingToRepay", inputs: [] }
+  ,{ type: "error", name: "ZeroAmount", inputs: [] }
 ] as const;
 
 export const vaultAbi = [

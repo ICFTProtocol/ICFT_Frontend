@@ -70,7 +70,18 @@ export function useProtocolActions() {
       }
       return true;
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Transaction could not be completed.");
+      const message = caught instanceof Error ? caught.message : "Transaction could not be completed.";
+      if (message.includes("BorrowBelowMinimum")) {
+        setError("Minimum borrow is $100 worth of ICFT. Increase collateral and borrow at least 100 ICFT.");
+      } else if (message.includes("BorrowExceedsLTV")) {
+        setError(action === "Withdraw"
+          ? "This withdrawal would push your position above the maximum LTV. Repay debt or withdraw less collateral."
+          : "This borrow amount would exceed the maximum LTV for your collateral.");
+      } else if (message.includes("InsufficientLiquidity")) {
+        setError("The pool does not currently have enough ICFT liquidity for this borrow.");
+      } else {
+        setError(message);
+      }
       return false;
     } finally {
       setPendingLabel(undefined);

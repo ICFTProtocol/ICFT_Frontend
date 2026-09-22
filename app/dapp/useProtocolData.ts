@@ -22,6 +22,7 @@ export function useProtocolData() {
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralValueUSD", args: [user] },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableBorrow", args: [user] },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCurrentInterest", args: [user] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "minimumBorrowUSD" },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "isLiquidatable", args: [user] }
       ,{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [user, zeroAddress] }
       ,{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [user, protocol.wbtc] }
@@ -70,7 +71,7 @@ export function useProtocolData() {
     isError: pool.isError || oracle.isError || risk.isError,
     refresh: async () => { await Promise.all([pool.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
     pool: { availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1), lpAssets: valueAt(pool.data, 2) },
-    position: { debtUsd: valueAt(pool.data, 3), ltvBps: valueAt(pool.data, 4), collateralUsd: valueAt(pool.data, 5), availableBorrow: valueAt(pool.data, 6), accruedInterestUsd: valueAt(pool.data, 7), liquidatable: pool.data?.[8]?.result === true, collateralNative: valueAt(pool.data, 9), collateralWbtc: valueAt(pool.data, 10), collateralWsteth: valueAt(pool.data, 11), fullRepayIcft: valueAt(fullRepay.data, 0) },
+    position: { debtUsd: valueAt(pool.data, 3), ltvBps: valueAt(pool.data, 4), collateralUsd: valueAt(pool.data, 5), availableBorrow: valueAt(pool.data, 6), accruedInterestUsd: valueAt(pool.data, 7), minimumBorrowUsd: valueAt(pool.data, 8), liquidatable: pool.data?.[9]?.result === true, collateralNative: valueAt(pool.data, 10), collateralWbtc: valueAt(pool.data, 11), collateralWsteth: valueAt(pool.data, 12), fullRepayIcft: valueAt(fullRepay.data, 0) },
     prices: { eth: valueAt(oracle.data, 0), icft: valueAt(oracle.data, 1), wbtc: valueAt(oracle.data, 2), wsteth: valueAt(oracle.data, 3) },
     risk: { maxLtvBps: valueAt(risk.data, 0), liquidationThresholdBps: valueAt(risk.data, 1), targetLtvBps: valueAt(risk.data, 2), liquidationBonusBps: valueAt(risk.data, 3), borrowRateBps: valueAt(risk.data, 4) },
     balances: { native: native.data?.value ?? 0n, icft: valueAt(balances.data, 0), lp: valueAt(balances.data, 1), wbtc: valueAt(balances.data, 2), wsteth: valueAt(balances.data, 3) }
