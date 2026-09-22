@@ -47,6 +47,7 @@ Every `NEXT_PUBLIC_*` value is exposed to the browser. Never put a private key, 
 | `TESTING.md` | Manual smoke-test matrix. |
 
 Read [ARCHITECTURE.md](ARCHITECTURE.md) before changing dApp behavior and [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+For a public testnet release, follow [DEPLOYMENT.md](DEPLOYMENT.md). Give non-technical testers [INVESTOR_TEST_GUIDE.md](INVESTOR_TEST_GUIDE.md).
 
 ## Environment
 
