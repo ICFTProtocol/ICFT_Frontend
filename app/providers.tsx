@@ -5,8 +5,23 @@ import { coinbaseWallet, injectedWallet, metaMaskWallet, rabbyWallet, walletConn
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { sepolia } from "wagmi/chains";
-const projectId=process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID??"REPLACE_WITH_WALLETCONNECT_PROJECT_ID";
-const connectors=connectorsForWallets([{groupName:"Recommended",wallets:[metaMaskWallet,rabbyWallet,coinbaseWallet,walletConnectWallet,injectedWallet]}],{appName:"ICFT",projectId});
-const config=createConfig({chains:[sepolia],connectors,transports:{[sepolia.id]:http(process.env.NEXT_PUBLIC_RPC_URL??"https://ethereum-sepolia-rpc.publicnode.com")},ssr:true});
+
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "REPLACE_WITH_WALLETCONNECT_PROJECT_ID";
+const isBrowser = typeof window !== "undefined";
+
+// WalletConnect opens IndexedDB. Do not construct its connector while Next.js prerenders on Vercel.
+const connectors = isBrowser
+  ? connectorsForWallets(
+      [{ groupName: "Recommended", wallets: [metaMaskWallet, rabbyWallet, coinbaseWallet, walletConnectWallet, injectedWallet] }],
+      { appName: "ICFT", projectId }
+    )
+  : [];
+
+const config = createConfig({
+  chains: [sepolia],
+  connectors,
+  transports: { [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL ?? "https://ethereum-sepolia-rpc.publicnode.com") },
+  ssr: true
+});
 const queryClient=new QueryClient();
 export function Providers({children}:{children:React.ReactNode}){return <WagmiProvider config={config}><QueryClientProvider client={queryClient}><RainbowKitProvider>{children}</RainbowKitProvider></QueryClientProvider></WagmiProvider>}
