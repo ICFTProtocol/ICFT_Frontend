@@ -16,6 +16,12 @@ The Sepolia deployment retains a legacy `ICFTLiquidityVault` because it was prev
 
 Do not disable, upgrade, drain, or otherwise alter the legacy vault until the team has reviewed its holders, withdrawal rights, LendingPool coupling, storage layout, and migration procedure.
 
+## Credit Amounts and Market Price
+
+If ICFT has a credible $2 market price, a new $100 loan should issue 50 ICFT instead of 100 ICFT. The protocol has not created more ICFT; the same token inventory simply has a different USD value. This must not be confused with market liquidity.
+
+The current Sepolia ICFT price is manually configured for controlled testing. No public market-cap, market-price, TVL, or buy/sell route should be presented until an official venue and price methodology are approved. Existing USD-denominated debt also needs a separate price-movement review before the protocol adopts a market-derived ICFT oracle.
+
 ## Required Contract Work Before Production
 
 1. Define a `ProtocolCreditReserve` administration model with least-privilege roles and an on-chain event trail for reserve funding and withdrawals.
