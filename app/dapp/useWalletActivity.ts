@@ -20,13 +20,11 @@ export function useWalletActivity(address?: Address) {
     async function load() {
       setLoading(true);
       try {
-        const [deposits, withdrawals, borrows, repays, supplies, redeems] = await Promise.all([
+        const [deposits, withdrawals, borrows, repays] = await Promise.all([
           publicClient.getContractEvents({ address: protocol.lendingPool, abi: protocolEventsAbi, eventName: "DepositCollateral", args: { user: address }, fromBlock: FROM_BLOCK } as never),
           publicClient.getContractEvents({ address: protocol.lendingPool, abi: protocolEventsAbi, eventName: "WithdrawCollateral", args: { user: address }, fromBlock: FROM_BLOCK } as never),
           publicClient.getContractEvents({ address: protocol.lendingPool, abi: protocolEventsAbi, eventName: "Borrow", args: { user: address }, fromBlock: FROM_BLOCK } as never),
-          publicClient.getContractEvents({ address: protocol.lendingPool, abi: protocolEventsAbi, eventName: "Repay", args: { user: address }, fromBlock: FROM_BLOCK } as never),
-          publicClient.getContractEvents({ address: protocol.liquidityVault, abi: protocolEventsAbi, eventName: "LiquiditySupplied", args: { caller: address }, fromBlock: FROM_BLOCK } as never),
-          publicClient.getContractEvents({ address: protocol.liquidityVault, abi: protocolEventsAbi, eventName: "LiquidityRedeemed", args: { caller: address }, fromBlock: FROM_BLOCK } as never)
+          publicClient.getContractEvents({ address: protocol.lendingPool, abi: protocolEventsAbi, eventName: "Repay", args: { user: address }, fromBlock: FROM_BLOCK } as never)
         ]);
         const render = (logs: readonly unknown[], title: string, key: string, suffix: string, detail: string) => logs.map((log, index) => {
           const entry = log as { args?: Record<string, unknown>; blockNumber?: bigint; transactionHash?: string };
@@ -38,9 +36,7 @@ export function useWalletActivity(address?: Address) {
           ...render(deposits, "Collateral deposited", "amount", "asset", "LendingPool event"),
           ...render(withdrawals, "Collateral withdrawn", "amount", "asset", "LendingPool event"),
           ...render(borrows, "ICFT borrowed", "amountICFT", "ICFT", "LendingPool event"),
-          ...render(repays, "ICFT repaid", "amountICFT", "ICFT", "LendingPool event"),
-          ...render(supplies, "Liquidity supplied", "assets", "ICFT", "LP vault event"),
-          ...render(redeems, "LP shares redeemed", "assets", "ICFT", "LP vault event")
+          ...render(repays, "ICFT repaid", "amountICFT", "ICFT", "LendingPool event")
         ].sort((a, b) => Number(b.block - a.block));
         if (active) setItems(next);
       } finally { if (active) setLoading(false); }

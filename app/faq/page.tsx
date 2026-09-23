@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import styles from "./faq.module.css";
 
-type Topic = "All" | "Getting started" | "Borrowing" | "Liquidity" | "Risk & security" | "Technical";
+type Topic = "All" | "Getting started" | "Borrowing" | "Market" | "Risk & security" | "Technical";
 
 type Question = {
   topic: Exclude<Topic, "All">;
@@ -12,7 +12,7 @@ type Question = {
   answer: string;
 };
 
-const topics: Topic[] = ["All", "Getting started", "Borrowing", "Liquidity", "Risk & security", "Technical"];
+const topics: Topic[] = ["All", "Getting started", "Borrowing", "Market", "Risk & security", "Technical"];
 
 const questions: Question[] = [
   { topic: "Getting started", question: "Which network should I use?", answer: "The current interface is configured for Ethereum Sepolia, chain ID 11155111. Use test ETH and test assets only. The protocol is not approved for mainnet use." },
@@ -23,10 +23,10 @@ const questions: Question[] = [
   { topic: "Borrowing", question: "How is interest accrued?", answer: "The protocol uses a global borrow index. Your debt grows in line with this index, and the rate model changes rates according to current pool utilization. A loan does not lock a personal APR at opening." },
   { topic: "Borrowing", question: "How do I repay or fully close a loan?", answer: "Hold sufficient ICFT, approve the LendingPool to spend it, then submit a repayment. Repay can be partial; after all debt is repaid, collateral can be withdrawn subject to the pool rules." },
   { topic: "Borrowing", question: "Why can a collateral withdrawal revert?", answer: "A withdrawal is rejected when it would leave the position above the maximum LTV. Add collateral or repay ICFT first, then retry with a smaller amount." },
-  { topic: "Liquidity", question: "What do LP shares represent?", answer: "icftLP shares represent a proportional claim on the ICFT Liquidity Vault assets. The share value can increase as interest is allocated to LP capital and can decrease if losses reach LP capital." },
-  { topic: "Liquidity", question: "Where does LP yield come from?", answer: "Borrower interest is split by the protocol: 85% increases LP assets and 15% is retained in the insurance reserve. Yield is not promised and depends on repayment, utilization and protocol losses." },
-  { topic: "Liquidity", question: "Can I redeem shares immediately?", answer: "A redemption can only succeed when the vault and lending pool have sufficient available ICFT liquidity. Capital currently borrowed by users is not instantly withdrawable." },
-  { topic: "Liquidity", question: "What is the insurance reserve for?", answer: "The reserve is the first loss buffer for realised bad debt. It is intended to absorb losses before they reduce LP assets; it does not guarantee that LPs cannot lose funds." },
+  { topic: "Market", question: "Can I buy or sell ICFT through this interface?", answer: "No. This testnet release does not publish an official DEX or CEX route. Do not treat an unofficial pool, listing or displayed price as an approved market venue." },
+  { topic: "Market", question: "Why is market cap not displayed?", answer: "Market cap requires a credible market price and a defined circulating supply methodology. Neither is presented as live until an official ICFT market venue and verified price source are available." },
+  { topic: "Market", question: "What is the protocol credit reserve?", answer: "The reserve is protocol-owned ICFT inventory used to fund borrowing. It is different from exchange liquidity and is not a public LP product: users cannot supply to it or redeem from it through the dApp." },
+  { topic: "Market", question: "How will a borrower obtain ICFT for repayment?", answer: "Once an official market venue exists, ICFT may be acquired through its published route before repayment. Until then, this is a controlled testnet flow and the project must provide test ICFT through an approved testing process." },
   { topic: "Risk & security", question: "When can a position be liquidated?", answer: "A position becomes eligible when its risk metrics cross the configured liquidation threshold. A third-party liquidation operator can repay debt and seize collateral according to the configured liquidation bonus." },
   { topic: "Risk & security", question: "What should I check before signing?", answer: "Read the wallet transaction target, method, amount and network. Never share a seed phrase, never use a wallet holding mainnet assets for testnet experimentation, and reject unexpected approvals." },
   { topic: "Risk & security", question: "Are oracle prices guaranteed to be current?", answer: "No. The PriceOracle validates configured feeds and freshness limits, but feeds can be stale or unavailable. The dApp should be treated as an interface, while contract state is the final source of truth." },

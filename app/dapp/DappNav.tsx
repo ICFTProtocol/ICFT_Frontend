@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./dapp.module.css";
 
-const nav = [["Overview", "/dapp", "grid"], ["Positions", "/dapp/positions", "layers"], ["Markets", "/dapp/markets", "chart"], ["Liquidity", "/dapp/liquidity", "vault"], ["Activity", "/dapp/activity", "pulse"], ["Profile", "/dapp/profile", "user"]] as const;
+const nav = [["Overview", "/dapp", "grid"], ["Positions", "/dapp/positions", "layers"], ["Markets", "/dapp/markets", "chart"], ["Market status", "/dapp/liquidity", "vault"], ["Activity", "/dapp/activity", "pulse"], ["Profile", "/dapp/profile", "user"]] as const;
 
 export function DappNav() {
   const pathname = usePathname();

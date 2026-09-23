@@ -4,7 +4,7 @@
 
 ICFT is an early Ethereum Sepolia testnet lending demo. Use only a new test wallet and free Sepolia ETH. Do not use mainnet funds, seed phrases, or a wallet holding valuable assets.
 
-The demo lets a user deposit supported collateral, borrow ICFT, repay debt, withdraw collateral, supply ICFT liquidity, and redeem `icftLP` shares.
+The demo lets a user deposit supported collateral, borrow ICFT, repay debt, and withdraw collateral. It uses protocol-owned credit inventory; it does not offer a public LP product.
 
 ## Before You Start
 
@@ -23,17 +23,16 @@ The demo lets a user deposit supported collateral, borrow ICFT, repay debt, with
 6. Open `Repay`, approve ICFT if asked, repay a partial amount, then use `MAX` to close the remaining debt.
 7. After debt is zero, withdraw the collateral.
 
-## Liquidity Walkthrough
+## Market Status Walkthrough
 
-1. Use a test wallet that has ICFT.
-2. Choose `Supply`, approve the vault, and supply a small ICFT amount.
-3. Confirm that `icftLP` shares appear.
-4. Choose `Redeem` and redeem a small share amount. Confirm that ICFT returns and shares decrease.
+1. Open the Market status page.
+2. Confirm that it separates the protocol credit reserve from exchange liquidity.
+3. Confirm that market cap, TVL, price, and buy/sell routes are unavailable until an official venue is published.
 
 ## Expected and Useful Failures
 
 - Borrowing below `$100` reverts with the displayed minimum-borrow explanation.
-- Borrowing above capacity reverts due to LTV or liquidity protection.
+- Borrowing above capacity reverts due to LTV or protocol-credit-reserve protection.
 - Withdrawing collateral that would break the LTV limit reverts.
 - A wrong network is rejected before transaction submission.
 

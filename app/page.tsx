@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { createWalletClient, custom, formatUnits, parseEther, type Address } from "viem";
-import { publicClient, protocol, erc20Abi, lendingPoolAbi, oracleAbi, vaultAbi } from "../lib/protocol";
+import { publicClient, protocol, erc20Abi, lendingPoolAbi, oracleAbi } from "../lib/protocol";
 import { copyText } from "../lib/copy";
 import { WalletButton } from "./WalletButton";
 import { useProtocolData } from "./dapp/useProtocolData";
 
 type WalletState = { address?: Address; connected: boolean };
-type Metrics = { liquidity: bigint; utilization: bigint; lpAssets: bigint; vaultAssets: bigint; ethPrice: bigint };
-type Position = { debt: bigint; ltv: bigint; collateral: bigint; availableBorrow: bigint; icft: bigint; shares: bigint };
+type Metrics = { liquidity: bigint; utilization: bigint; ethPrice: bigint };
+type Position = { debt: bigint; ltv: bigint; collateral: bigint; availableBorrow: bigint; icft: bigint };
 
-const zeroMetrics: Metrics = { liquidity: 0n, utilization: 0n, lpAssets: 0n, vaultAssets: 0n, ethPrice: 0n };
-const zeroPosition: Position = { debt: 0n, ltv: 0n, collateral: 0n, availableBorrow: 0n, icft: 0n, shares: 0n };
+const zeroMetrics: Metrics = { liquidity: 0n, utilization: 0n, ethPrice: 0n };
+const zeroPosition: Position = { debt: 0n, ltv: 0n, collateral: 0n, availableBorrow: 0n, icft: 0n };
 const short = (value?: string) => value ? `${value.slice(0, 6)}...${value.slice(-4)}` : "Connect wallet";
 const compact = (value: bigint, digits = 2) => Number(formatUnits(value, 18)).toLocaleString("en-US", { maximumFractionDigits: digits });
 const usd = (value: bigint) => `$${compact(value)}`;
@@ -24,31 +24,28 @@ export default function Home() {
   const [wallet, setWallet] = useState<WalletState>({ connected: false });
   const [metrics, setMetrics] = useState<Metrics>(zeroMetrics);
   const [position, setPosition] = useState<Position>(zeroPosition);
-  const [tab, setTab] = useState<"borrow" | "repay" | "supply">("borrow");
+  const [tab, setTab] = useState<"borrow" | "repay">("borrow");
   const [amount, setAmount] = useState("");
   const [notice, setNotice] = useState("Sepolia testnet. Never use mainnet funds here.");
   const [busy, setBusy] = useState(false);
 
   const refresh = async (account = wallet.address) => {
     try {
-      const [liquidity, utilization, lpAssets, vaultAssets, ethPrice] = await Promise.all([
+      const [liquidity, utilization, ethPrice] = await Promise.all([
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableLiquidity" }),
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getUtilization" }),
-        publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLPTotalAssets" }),
-        publicClient.readContract({ address: protocol.liquidityVault, abi: vaultAbi, functionName: "totalAssets" }),
         publicClient.readContract({ address: protocol.oracle, abi: oracleAbi, functionName: "getETHUSDPrice" })
       ]);
-      setMetrics({ liquidity, utilization, lpAssets, vaultAssets, ethPrice });
+      setMetrics({ liquidity, utilization, ethPrice });
       if (!account) return;
-      const [debt, ltv, collateral, availableBorrow, icft, shares] = await Promise.all([
+      const [debt, ltv, collateral, availableBorrow, icft] = await Promise.all([
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [account] }),
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLTV", args: [account] }),
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralValueUSD", args: [account] }),
         publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableBorrow", args: [account] }),
-        publicClient.readContract({ address: protocol.icft, abi: erc20Abi, functionName: "balanceOf", args: [account] }),
-        publicClient.readContract({ address: protocol.liquidityVault, abi: vaultAbi, functionName: "balanceOf", args: [account] })
+        publicClient.readContract({ address: protocol.icft, abi: erc20Abi, functionName: "balanceOf", args: [account] })
       ]);
-      setPosition({ debt, ltv, collateral, availableBorrow, icft, shares });
+      setPosition({ debt, ltv, collateral, availableBorrow, icft });
     } catch {
       setNotice("RPC is temporarily unavailable. Your wallet can still be connected; try Refresh shortly.");
     }
@@ -79,16 +76,11 @@ export default function Home() {
       let hash: `0x${string}`;
       if (tab === "borrow") {
         hash = await walletClient.writeContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "borrow", args: [value] });
-      } else if (tab === "repay") {
+      } else {
         setNotice("Approve ICFT in your wallet, then confirm repayment.");
         const approval = await walletClient.writeContract({ address: protocol.icft, abi: erc20Abi, functionName: "approve", args: [protocol.lendingPool, value] });
         await publicClient.waitForTransactionReceipt({ hash: approval });
         hash = await walletClient.writeContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "repay", args: [value] });
-      } else {
-        setNotice("Approve ICFT in your wallet, then confirm LP supply.");
-        const approval = await walletClient.writeContract({ address: protocol.icft, abi: erc20Abi, functionName: "approve", args: [protocol.liquidityVault, value] });
-        await publicClient.waitForTransactionReceipt({ hash: approval });
-        hash = await walletClient.writeContract({ address: protocol.liquidityVault, abi: vaultAbi, functionName: "supply", args: [value, wallet.address] });
       }
       setNotice("Transaction submitted. Waiting for Sepolia confirmation...");
       await publicClient.waitForTransactionReceipt({ hash });
@@ -125,7 +117,7 @@ export default function Home() {
     <section className="hero shell" id="top">
       <div className="eyebrow"><span /> SEPOLIA / EARLY ACCESS</div>
       <h1>Credit should feel<br /><em>inevitable.</em></h1>
-      <p className="heroCopy">Borrow ICFT against on-chain collateral, or supply liquidity to earn from protocol activity. Transparent math. No black box.</p>
+      <p className="heroCopy">Borrow ICFT against on-chain collateral from a protocol-owned credit reserve. Transparent math. No black box.</p>
       <div className="heroActions"><a className="button primary" href="/dapp">Open dApp <b>↗</b></a><a className="button ghost" href="/how-it-works">How it works</a></div>
       <div className="logoSatellite" aria-hidden="true"><span>+</span><i>ICFT</i><b>SEP<br />26</b></div>
       <div className="orb orbOne" /><div className="orb orbTwo" />
@@ -133,10 +125,10 @@ export default function Home() {
     </section>
 
     <section className="stats shell" aria-label="Pool metrics">
-      <Metric label="Pool liquidity" value={`${compact(live.pool.availableLiquidity, 0)} ICFT`} foot="Available to borrow" />
-      <Metric label="LP assets" value={`${compact(live.pool.lpAssets, 0)} ICFT`} foot="Fund A + LP capital" />
-      <Metric label="Pool utilization" value={`${Number(live.pool.utilizationBps) / 100}%`} foot="Borrowed capital" />
-      <Metric label="Reserve policy" value="15%" foot="Interest to insurance" />
+      <Metric label="Credit reserve" value={`${compact(live.pool.availableLiquidity, 0)} ICFT`} foot="Available to borrow" />
+      <Metric label="Reserve utilization" value={`${Number(live.pool.utilizationBps) / 100}%`} foot="Borrowed inventory" />
+      <Metric label="Market venue" value="Not live" foot="No official Sepolia pair" />
+      <Metric label="Network" value="Sepolia" foot="Early testnet baseline" />
     </section>
 
     <section className="assets shell" id="assets"><div className="sectionTitle"><div><span className="kicker">00 / COLLATERAL MATRIX</span><h2>Choose your backing.</h2></div><a className="textLink" href="#lending">Open position ↓</a></div><div className="assetTable"><div className="assetHead"><span>Asset</span><span>Price source</span><span>Max LTV</span><span>State</span><span /></div><Asset symbol="ETH" name="Native Ether" source="PriceOracle / Chainlink" ltv={`${Number(live.risk.maxLtvBps) / 100}%`} state={live.prices.eth > 0n ? "Live" : "Syncing"} /><Asset symbol="wBTC" name="Wrapped Bitcoin" source="PriceOracle / Chainlink" ltv={`${Number(live.risk.maxLtvBps) / 100}%`} state={live.prices.wbtc > 0n ? "Live" : "Syncing"} /><Asset symbol="wstETH" name="Wrapped staked Ether" source="PriceOracle / Chainlink" ltv={`${Number(live.risk.maxLtvBps) / 100}%`} state={live.prices.wsteth > 0n ? "Live" : "Syncing"} /></div></section>
@@ -152,12 +144,12 @@ export default function Home() {
         </article>
 
         <article className="actionCard">
-          <div className="tabs">{(["borrow", "repay", "supply"] as const).map((item) => <button key={item} className={tab === item ? "selected" : ""} onClick={() => { setTab(item); setAmount(""); }}>{item}</button>)}</div>
+          <div className="tabs">{(["borrow", "repay"] as const).map((item) => <button key={item} className={tab === item ? "selected" : ""} onClick={() => { setTab(item); setAmount(""); }}>{item}</button>)}</div>
           <div className="actionBody">
-            <p className="actionTitle">{tab === "borrow" ? "Borrow against collateral" : tab === "repay" ? "Close debt, restore headroom" : "Supply ICFT liquidity"}</p>
-            <div className="amountField"><input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="0.00" /><span>{tab === "borrow" || tab === "repay" || tab === "supply" ? "ICFT" : "ETH"}</span></div>
-            <button className="max" onClick={() => setAmount(tab === "borrow" ? compact(position.availableBorrow, 6) : tab === "repay" ? compact(position.icft, 6) : compact(position.icft, 6))}>Use available balance</button>
-            <div className="preview"><Row label="Pool APR" value="Up to 100%" /><Row label={tab === "supply" ? "Your LP shares" : "Minimum borrow"} value={tab === "supply" ? `${compact(position.shares)} icftLP` : "100 ICFT"} /></div>
+            <p className="actionTitle">{tab === "borrow" ? "Borrow against collateral" : "Close debt, restore headroom"}</p>
+            <div className="amountField"><input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="0.00" /><span>ICFT</span></div>
+            <button className="max" onClick={() => setAmount(tab === "borrow" ? compact(position.availableBorrow, 6) : compact(position.icft, 6))}>Use available balance</button>
+            <div className="preview"><Row label="Credit reserve" value={`${compact(live.pool.availableLiquidity, 0)} ICFT`} /><Row label="Minimum borrow" value="100 ICFT" /></div>
             <a className="button primary wide landingDapp" href="/dapp">Open dApp to continue <b>↗</b></a>
           </div>
           <div className="collateralBar"><div><span>Collateral</span><strong>ETH</strong></div><a href="/dapp">Deposit in dApp <b>+</b></a></div>
@@ -166,13 +158,13 @@ export default function Home() {
       <p className="notice"><Glyph>i</Glyph>{notice}</p>
     </section>
 
-    <section className="protocol shell" id="protocol"><div className="protocolHeading"><span className="kicker">02 / THE SYSTEM</span><h2>One pool.<br />Clear incentives.</h2></div><div className="flow"><Flow number="01" title="Deposit collateral" body="ETH, wBTC and wstETH form a single collateral basket." /><Flow number="02" title="Borrow ICFT" body="Debt is USD-denominated and interest accrues through a global index." /><Flow number="03" title="Supply liquidity" body="LP shares capture 85% of interest revenue while 15% builds insurance." /><Flow number="04" title="Keep the system whole" body="Liquidations protect lenders; reserve absorbs bad debt before LP capital." /></div></section>
+    <section className="protocol shell" id="protocol"><div className="protocolHeading"><span className="kicker">02 / THE SYSTEM</span><h2>One reserve.<br />Clear incentives.</h2></div><div className="flow"><Flow number="01" title="Deposit collateral" body="ETH, wBTC and wstETH form a single collateral basket." /><Flow number="02" title="Borrow ICFT" body="Debt is USD-denominated and interest accrues through a global index." /><Flow number="03" title="Repay ICFT" body="Repaid principal returns to protocol credit inventory; interest follows the protocol reserve policy." /><Flow number="04" title="Keep the system whole" body="Liquidations protect the protocol reserve; insurance absorbs bad debt under the configured rules." /></div></section>
 
-    <section className="control shell"><div className="controlIntro"><span className="kicker">PROTOCOL CONTROL ROOM</span><h2>Verify before<br />you sign.</h2><p>Every address below belongs to the active Sepolia baseline. Inspect contracts, validate your network, then interact in the dedicated dApp.</p><a className="button primary" href="/dapp">Open dApp <b>↗</b></a></div><div className="addressList"><AddressRow label="Lending Pool" value={protocol.lendingPool} /><AddressRow label="ICFT token" value={protocol.icft} /><AddressRow label="LP vault" value={protocol.liquidityVault} /><div className="checklist"><span>BEFORE YOU START</span><label><input type="checkbox" /> I am using a testnet-only wallet</label><label><input type="checkbox" /> I understand this is not mainnet</label><label><input type="checkbox" /> I will not share a seed phrase</label></div></div></section>
+    <section className="control shell"><div className="controlIntro"><span className="kicker">PROTOCOL CONTROL ROOM</span><h2>Verify before<br />you sign.</h2><p>Every address below belongs to the active Sepolia baseline. Inspect contracts, validate your network, then interact in the dedicated dApp.</p><a className="button primary" href="/dapp">Open dApp <b>↗</b></a></div><div className="addressList"><AddressRow label="Lending Pool" value={protocol.lendingPool} /><AddressRow label="ICFT token" value={protocol.icft} /><AddressRow label="Price Oracle" value={protocol.oracle} /><div className="checklist"><span>BEFORE YOU START</span><label><input type="checkbox" /> I am using a testnet-only wallet</label><label><input type="checkbox" /> I understand this is not mainnet</label><label><input type="checkbox" /> I will not share a seed phrase</label></div></div></section>
 
     <section className="ctaBand shell"><span>READY TO TEST THE PROTOCOL?</span><h2>Collateral in.<br /><em>Credit out.</em></h2><div><p>Start with a small Sepolia ETH collateral deposit. The interface will guide every wallet confirmation.</p><a className="button primary" href="#lending">Start lending <b>↗</b></a></div></section>
 
-    <section className="faq shell" id="faq"><div><span className="kicker">03 / FIELD NOTES</span><h2>Questions, answered.</h2><a className="textLink" href="/faq">Browse all FAQ ↗</a></div><div className="faqList"><Faq q="Is this mainnet?" a="No. This interface points to Ethereum Sepolia. It is an engineering baseline for testing only." /><Faq q="Which collateral is supported?" a="The current testnet pool supports native ETH, wBTC and wstETH through the configured collateral registry." /><Faq q="How is borrowing interest calculated?" a="Debt is denominated in USD and accrues through the LendingPool global borrow index. The rate model responds to pool utilization, so the rate is not fixed when a loan is opened." /><Faq q="Can I withdraw collateral at any time?" a="Yes, only when the withdrawal keeps your position below the configured maximum LTV. Repay debt or add collateral first if the requested withdrawal would make the position unsafe." /><Faq q="Where does LP yield come from?" a="Interest repayments are split: 85% increases LP assets and 15% is retained as the protocol insurance reserve." /><Faq q="What should I do before testing?" a="Use a Sepolia-only wallet. Never enter a seed phrase and never send mainnet assets to testnet contracts." /></div></section>
+    <section className="faq shell" id="faq"><div><span className="kicker">03 / FIELD NOTES</span><h2>Questions, answered.</h2><a className="textLink" href="/faq">Browse all FAQ ↗</a></div><div className="faqList"><Faq q="Is this mainnet?" a="No. This interface points to Ethereum Sepolia. It is an engineering baseline for testing only." /><Faq q="Which collateral is supported?" a="The current testnet pool supports native ETH, wBTC and wstETH through the configured collateral registry." /><Faq q="How is borrowing interest calculated?" a="Debt is denominated in USD and accrues through the LendingPool global borrow index. The rate model responds to pool utilization, so the rate is not fixed when a loan is opened." /><Faq q="Can I withdraw collateral at any time?" a="Yes, only when the withdrawal keeps your position below the configured maximum LTV. Repay debt or add collateral first if the requested withdrawal would make the position unsafe." /><Faq q="Can I buy or sell ICFT here?" a="No official exchange route is configured in this testnet interface. Market data and verified buy or sell links will only be shown after an official trading venue is published." /><Faq q="What should I do before testing?" a="Use a Sepolia-only wallet. Never enter a seed phrase and never send mainnet assets to testnet contracts." /></div></section>
 
   </main>;
 }

@@ -25,8 +25,7 @@ Use a dedicated Ethereum Sepolia wallet. Never use a wallet containing mainnet f
 4. Repay: select `Repay`, use a partial amount or `MAX`, approve ICFT, then confirm repayment. Verify the approval and repayment hashes in Etherscan.
 5. Withdraw ETH: withdraw a small safe amount. Verify the wallet balance and collateral balance change. Attempting an unsafe withdrawal must revert rather than bypass LTV checks.
 6. Deposit ERC-20 collateral: for wBTC and wstETH, approve then deposit a small test amount. Confirm both the approval and deposit transactions.
-7. Supply liquidity: approve ICFT for the vault, supply a small amount, and verify minted `icftLP` shares.
-8. Redeem liquidity: redeem a small share amount under available pool liquidity. Verify ICFT returned and `icftLP` burned. If the RPC proposes gas above its cap, confirm the frontend transaction estimate remains below the Sepolia limit.
+7. Open Market status and verify it does not display an unverified market cap, TVL, price, or buy/sell route while no official venue exists.
 
 ## Expected UX
 
@@ -42,14 +41,13 @@ The following manual smoke-test passed against the deployed Ethereum Sepolia pro
 
 | Scenario | Result |
 | --- | --- |
-| Supply `10 ICFT` to the liquidity vault | Passed |
-| Redeem `2 icftLP` shares | Passed |
+| Legacy LP-vault test | Passed before deprecation; removed from the public UI pending safe migration |
 | Deposit `0.05 ETH` as collateral | Passed |
 | Borrow `100 ICFT` | Passed |
 | Attempt an unsafe full collateral withdrawal with active debt | Reverted as expected by the LTV check |
 | Partial ICFT repayment and full repayment with `MAX` | Passed |
 | Withdraw ETH after debt reached zero | Passed |
-| Keeper indexed both the existing LP account and the test borrower | Passed |
+| Keeper indexed the existing test borrowers | Passed |
 
 The live protocol has a `$100` minimum borrow. The dApp reads this value from `LendingPool.minimumBorrowUSD()` and shows it in the borrow flow.
 

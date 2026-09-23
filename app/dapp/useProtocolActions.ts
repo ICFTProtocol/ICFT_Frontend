@@ -4,9 +4,9 @@ import { useState } from "react";
 import { parseUnits } from "viem";
 import { sepolia } from "wagmi/chains";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { erc20Abi, lendingPoolAbi, protocol, vaultAbi } from "../../lib/protocol";
+import { erc20Abi, lendingPoolAbi, protocol } from "../../lib/protocol";
 
-export type ProtocolAction = "Deposit" | "Borrow" | "Repay" | "Supply" | "Redeem" | "Withdraw";
+export type ProtocolAction = "Deposit" | "Borrow" | "Repay" | "Withdraw";
 type ContractRequest = { address: `0x${string}`; abi: readonly unknown[]; functionName: string; args?: readonly unknown[]; value?: bigint };
 
 function assetConfig(asset: string) {
@@ -50,7 +50,7 @@ export function useProtocolActions() {
       if (chainId !== sepolia.id) throw new Error("Switch the connected wallet to Ethereum Sepolia.");
       if (!rawAmount || Number(rawAmount) <= 0) throw new Error("Enter an amount greater than zero.");
       const config = assetConfig(asset);
-      const amount = parseUnits(rawAmount, action === "Redeem" ? 18 : config.decimals);
+      const amount = parseUnits(rawAmount, config.decimals);
 
       if (action === "Deposit") {
         if (asset === "ETH") await sendAndWait({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "depositCollateral", value: amount }, "Confirm ETH deposit");
@@ -59,10 +59,6 @@ export function useProtocolActions() {
         await sendAndWait({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "borrow", args: [amount] }, "Confirm ICFT borrow");
       } else if (action === "Repay") {
         await approve(protocol.icft, protocol.lendingPool, amount); await sendAndWait({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "repay", args: [amount] }, "Confirm ICFT repayment");
-      } else if (action === "Supply") {
-        await approve(protocol.icft, protocol.liquidityVault, amount); await sendAndWait({ address: protocol.liquidityVault, abi: vaultAbi, functionName: "supply", args: [amount, address] }, "Confirm liquidity supply");
-      } else if (action === "Redeem") {
-        await sendAndWait({ address: protocol.liquidityVault, abi: vaultAbi, functionName: "redeem", args: [amount, address] }, "Confirm LP redemption");
       } else if (asset === "ETH") {
         await sendAndWait({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "withdrawCollateral", args: [amount] }, "Confirm ETH withdrawal");
       } else {

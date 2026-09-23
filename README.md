@@ -8,7 +8,8 @@ Public website and Ethereum Sepolia dApp for the ICFT collateralized lending pro
 
 - Public product pages: onboarding, protocol, tokenomics, risk, roadmap, FAQ, status, and legal notices.
 - Wallet connection through RainbowKit, Wagmi, and WalletConnect/Reown.
-- Live Sepolia reads and dApp flows for collateral, borrowing, repayment, and ICFT liquidity.
+- Live Sepolia reads and dApp flows for collateral, borrowing, repayment, and withdrawal.
+- A market-status view that distinguishes protocol-owned credit inventory from exchange liquidity.
 - Transaction feedback, Etherscan links, RPC failure states, sitemap, and metadata.
 
 ## Quick Start
