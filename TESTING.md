@@ -13,7 +13,7 @@ Use a dedicated Ethereum Sepolia wallet. Never use a wallet containing mainnet f
 
 1. Open `/`, `/start`, `/how-it-works`, `/tokenomics`, `/risk`, `/roadmap`, `/about`, `/faq`, and `/status` on desktop and a narrow mobile viewport.
 2. Confirm all public pages show the shared footer; `/dapp` must not.
-3. On `/status`, copy each proxy address and compare it with the linked Sepolia Etherscan page.
+3. On `/status`, copy each displayed proxy address and compare it with the linked Sepolia Etherscan page.
 4. Temporarily use an invalid `NEXT_PUBLIC_RPC_URL`, reload `/dapp`, and confirm the `SEPOLIA READ FAILED` state and retry button appear. Restore the valid RPC afterward.
 5. Open a nonexistent route and confirm the ICFT `404` screen appears.
 
@@ -26,6 +26,8 @@ Use a dedicated Ethereum Sepolia wallet. Never use a wallet containing mainnet f
 5. Withdraw ETH: withdraw a small safe amount. Verify the wallet balance and collateral balance change. Attempting an unsafe withdrawal must revert rather than bypass LTV checks.
 6. Deposit ERC-20 collateral: for wBTC and wstETH, approve then deposit a small test amount. Confirm both the approval and deposit transactions.
 7. Open Market status and verify it does not display an unverified market cap, TVL, price, or buy/sell route while no official venue exists.
+8. Confirm Fund A inventory and utilization are displayed without presenting a public LP vault, LP assets, supply, redemption, or yield claim.
+9. Confirm USDT settlement is labelled planned and has no active transaction flow until the on-chain upgrade and market-execution controls are approved.
 
 ## Expected UX
 
@@ -41,7 +43,7 @@ The following manual smoke-test passed against the deployed Ethereum Sepolia pro
 
 | Scenario | Result |
 | --- | --- |
-| Legacy LP-vault test | Passed before deprecation; removed from the public UI pending safe migration |
+| Legacy LP-vault test | Removed from the public UI; not part of the current product test scope |
 | Deposit `0.05 ETH` as collateral | Passed |
 | Borrow `100 ICFT` | Passed |
 | Attempt an unsafe full collateral withdrawal with active debt | Reverted as expected by the LTV check |

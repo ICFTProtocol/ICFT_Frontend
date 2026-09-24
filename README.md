@@ -46,6 +46,7 @@ Every `NEXT_PUBLIC_*` value is exposed to the browser. Never put a private key, 
 | `app/sitemap.ts`, `app/robots.ts` | Search-engine metadata routes. |
 | `lib/protocol.ts` | Browser-visible Sepolia addresses and minimal ABIs. |
 | `TESTING.md` | Manual smoke-test matrix. |
+| `TESTER_ASSIGNMENTS.md` | Split product and adversarial test assignments for the Sepolia release. |
 
 Read [ARCHITECTURE.md](ARCHITECTURE.md) before changing dApp behavior and [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 For a public testnet release, follow [DEPLOYMENT.md](DEPLOYMENT.md). Give non-technical testers [INVESTOR_TEST_GUIDE.md](INVESTOR_TEST_GUIDE.md).

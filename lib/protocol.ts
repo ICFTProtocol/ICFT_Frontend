@@ -11,7 +11,6 @@ export const protocol = {
   riskEngine: address(process.env.NEXT_PUBLIC_RISK_ENGINE_ADDRESS ?? "0x1FD24725fDF3E0e455dFc76B2Ec4fe0b6fA5f812"),
   interestRateModel: address(process.env.NEXT_PUBLIC_INTEREST_RATE_MODEL_ADDRESS ?? "0xE5B9d722D92b297e4766407646bA6744C5290b0E"),
   lendingPool: address(process.env.NEXT_PUBLIC_LENDING_POOL_ADDRESS ?? "0x0F7933DC1FD07473e187dd5F278Bbdf10D73ECec"),
-  liquidityVault: address(process.env.NEXT_PUBLIC_LIQUIDITY_VAULT_ADDRESS ?? "0x5C295102D50d64A01e7f0531db48a5C4487B389E"),
   wbtc: address(process.env.NEXT_PUBLIC_WBTC_ADDRESS ?? "0x29f2D40B0605204364af54EC677bD022dA425d03"),
   wsteth: address(process.env.NEXT_PUBLIC_WSTETH_ADDRESS ?? "0xB82381A3fBD3FaFA77B3a7bE693342618240067b")
 } as const;
@@ -27,7 +26,6 @@ export const erc20Abi = [
 export const lendingPoolAbi = [
   { type: "function", name: "getAvailableLiquidity", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getUtilization", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "getLPTotalAssets", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getDebt", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getLTV", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "uint256" }] },
   { type: "function", name: "getCollateralValueUSD", stateMutability: "view", inputs: [{ name: "user", type: "address" }], outputs: [{ type: "uint256" }] },
@@ -49,14 +47,6 @@ export const lendingPoolAbi = [
   ,{ type: "error", name: "NoDebt", inputs: [] }
   ,{ type: "error", name: "NothingToRepay", inputs: [] }
   ,{ type: "error", name: "ZeroAmount", inputs: [] }
-] as const;
-
-export const vaultAbi = [
-  { type: "function", name: "totalAssets", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "totalSupply", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "supply", stateMutability: "nonpayable", inputs: [{ name: "assets", type: "uint256" }, { name: "receiver", type: "address" }], outputs: [{ type: "uint256" }] },
-  { type: "function", name: "redeem", stateMutability: "nonpayable", inputs: [{ name: "shares", type: "uint256" }, { name: "receiver", type: "address" }], outputs: [{ type: "uint256" }] }
 ] as const;
 
 export const oracleAbi = [
@@ -81,7 +71,5 @@ export const protocolEventsAbi = [
   { type: "event", name: "DepositCollateral", anonymous: false, inputs: [{ name: "user", type: "address", indexed: true }, { name: "asset", type: "address", indexed: true }, { name: "amount", type: "uint256", indexed: false }, { name: "totalCollateral", type: "uint256", indexed: false }] },
   { type: "event", name: "WithdrawCollateral", anonymous: false, inputs: [{ name: "user", type: "address", indexed: true }, { name: "asset", type: "address", indexed: true }, { name: "amount", type: "uint256", indexed: false }, { name: "remainingCollateral", type: "uint256", indexed: false }] },
   { type: "event", name: "Borrow", anonymous: false, inputs: [{ name: "user", type: "address", indexed: true }, { name: "amountICFT", type: "uint256", indexed: false }, { name: "addedDebtUSD", type: "uint256", indexed: false }, { name: "totalDebtUSD", type: "uint256", indexed: false }] },
-  { type: "event", name: "Repay", anonymous: false, inputs: [{ name: "user", type: "address", indexed: true }, { name: "amountICFT", type: "uint256", indexed: false }, { name: "repaidDebtUSD", type: "uint256", indexed: false }, { name: "remainingDebtUSD", type: "uint256", indexed: false }] },
-  { type: "event", name: "LiquiditySupplied", anonymous: false, inputs: [{ name: "caller", type: "address", indexed: true }, { name: "receiver", type: "address", indexed: true }, { name: "assets", type: "uint256", indexed: false }, { name: "shares", type: "uint256", indexed: false }] },
-  { type: "event", name: "LiquidityRedeemed", anonymous: false, inputs: [{ name: "caller", type: "address", indexed: true }, { name: "receiver", type: "address", indexed: true }, { name: "assets", type: "uint256", indexed: false }, { name: "shares", type: "uint256", indexed: false }] }
+  { type: "event", name: "Repay", anonymous: false, inputs: [{ name: "user", type: "address", indexed: true }, { name: "amountICFT", type: "uint256", indexed: false }, { name: "repaidDebtUSD", type: "uint256", indexed: false }, { name: "remainingDebtUSD", type: "uint256", indexed: false }] }
 ] as const;

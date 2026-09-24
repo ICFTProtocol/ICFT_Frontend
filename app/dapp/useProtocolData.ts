@@ -2,7 +2,7 @@
 
 import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { zeroAddress } from "viem";
-import { erc20Abi, interestRateModelAbi, lendingPoolAbi, oracleAbi, protocol, riskEngineAbi, vaultAbi } from "../../lib/protocol";
+import { erc20Abi, interestRateModelAbi, lendingPoolAbi, oracleAbi, protocol, riskEngineAbi } from "../../lib/protocol";
 
 const valueAt = (data: readonly { result?: unknown }[] | undefined, index: number) => {
   const value = data?.[index]?.result;
@@ -16,7 +16,6 @@ export function useProtocolData() {
     contracts: [
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableLiquidity" },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getUtilization" },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLPTotalAssets" },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [user] },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLTV", args: [user] },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralValueUSD", args: [user] },
@@ -42,7 +41,6 @@ export function useProtocolData() {
   const balances = useReadContracts({
     contracts: [
       { address: protocol.icft, abi: erc20Abi, functionName: "balanceOf", args: [user] },
-      { address: protocol.liquidityVault, abi: vaultAbi, functionName: "balanceOf", args: [user] },
       { address: protocol.wbtc, abi: erc20Abi, functionName: "balanceOf", args: [user] },
       { address: protocol.wsteth, abi: erc20Abi, functionName: "balanceOf", args: [user] }
     ],
@@ -50,8 +48,8 @@ export function useProtocolData() {
   });
   const native = useBalance({ address, query: { enabled: isConnected, refetchInterval: 15_000 } });
   const fullRepay = useReadContracts({
-    contracts: [{ address: protocol.oracle, abi: oracleAbi, functionName: "convertUSDToICFT", args: [valueAt(pool.data, 3), true] }],
-    query: { enabled: isConnected && valueAt(pool.data, 3) > 0n, refetchInterval: 15_000 }
+    contracts: [{ address: protocol.oracle, abi: oracleAbi, functionName: "convertUSDToICFT", args: [valueAt(pool.data, 2), true] }],
+    query: { enabled: isConnected && valueAt(pool.data, 2) > 0n, refetchInterval: 15_000 }
   });
   const risk = useReadContracts({
     contracts: [
@@ -70,10 +68,10 @@ export function useProtocolData() {
     isLoading: pool.isLoading || oracle.isLoading || balances.isLoading || native.isLoading,
     isError: pool.isError || oracle.isError || risk.isError,
     refresh: async () => { await Promise.all([pool.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
-    pool: { availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1), lpAssets: valueAt(pool.data, 2) },
-    position: { debtUsd: valueAt(pool.data, 3), ltvBps: valueAt(pool.data, 4), collateralUsd: valueAt(pool.data, 5), availableBorrow: valueAt(pool.data, 6), accruedInterestUsd: valueAt(pool.data, 7), minimumBorrowUsd: valueAt(pool.data, 8), liquidatable: pool.data?.[9]?.result === true, collateralNative: valueAt(pool.data, 10), collateralWbtc: valueAt(pool.data, 11), collateralWsteth: valueAt(pool.data, 12), fullRepayIcft: valueAt(fullRepay.data, 0) },
+    pool: { availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1) },
+    position: { debtUsd: valueAt(pool.data, 2), ltvBps: valueAt(pool.data, 3), collateralUsd: valueAt(pool.data, 4), availableBorrow: valueAt(pool.data, 5), accruedInterestUsd: valueAt(pool.data, 6), minimumBorrowUsd: valueAt(pool.data, 7), liquidatable: pool.data?.[8]?.result === true, collateralNative: valueAt(pool.data, 9), collateralWbtc: valueAt(pool.data, 10), collateralWsteth: valueAt(pool.data, 11), fullRepayIcft: valueAt(fullRepay.data, 0) },
     prices: { eth: valueAt(oracle.data, 0), icft: valueAt(oracle.data, 1), wbtc: valueAt(oracle.data, 2), wsteth: valueAt(oracle.data, 3) },
     risk: { maxLtvBps: valueAt(risk.data, 0), liquidationThresholdBps: valueAt(risk.data, 1), targetLtvBps: valueAt(risk.data, 2), liquidationBonusBps: valueAt(risk.data, 3), borrowRateBps: valueAt(risk.data, 4) },
-    balances: { native: native.data?.value ?? 0n, icft: valueAt(balances.data, 0), lp: valueAt(balances.data, 1), wbtc: valueAt(balances.data, 2), wsteth: valueAt(balances.data, 3) }
+    balances: { native: native.data?.value ?? 0n, icft: valueAt(balances.data, 0), wbtc: valueAt(balances.data, 1), wsteth: valueAt(balances.data, 2) }
   };
 }
