@@ -7,7 +7,7 @@ ICFT will not operate a public, user-supplied credit-liquidity product. Borrowab
 ## Separate Concepts
 
 - **Protocol credit reserve** is ICFT held for lending through the protocol. It defines borrowable inventory and is not exchange liquidity.
-- **Market liquidity** is the depth of an approved ICFT trading pair on a DEX or CEX. It enables buying and selling, including obtaining ICFT for repayment.
+- **Market liquidity** is the depth of an approved ICFT trading pair on a DEX or CEX. The whitepaper model uses protocol-provided ICFT and external LP-provided USDT for an ICFT/USDT pool. It enables buying and selling, including obtaining ICFT for repayment.
 - **Market capitalization** is a valuation metric derived from a credible market price and an approved circulating-supply methodology. It is not liquidity.
 
 ## Current Sepolia Behavior
