@@ -48,6 +48,9 @@ export function useProtocolActions() {
     try {
       if (!address) throw new Error("Connect a wallet before submitting a transaction.");
       if (chainId !== sepolia.id) throw new Error("Switch the connected wallet to Ethereum Sepolia.");
+      if (!publicClient) throw new Error("Sepolia public client is unavailable.");
+      const paused = await publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "paused" });
+      if (paused && action !== "Repay") throw new Error("Protocol maintenance is active. Deposits, borrowing and withdrawals are temporarily disabled; repayment remains available.");
       if (!rawAmount || Number(rawAmount) <= 0) throw new Error("Enter an amount greater than zero.");
       const config = assetConfig(asset);
       const amount = parseUnits(rawAmount, config.decimals);

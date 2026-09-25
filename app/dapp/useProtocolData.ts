@@ -29,12 +29,15 @@ export function useProtocolData() {
     ],
     query: { refetchInterval: 15_000 }
   });
+  const state = useReadContracts({
+    contracts: [{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "paused" }],
+    query: { refetchInterval: 15_000 }
+  });
   const oracle = useReadContracts({
     contracts: [
       { address: protocol.oracle, abi: oracleAbi, functionName: "getETHUSDPrice" },
       { address: protocol.oracle, abi: oracleAbi, functionName: "getICFTUSDPrice" },
-      { address: protocol.oracle, abi: oracleAbi, functionName: "getAssetUSDPrice", args: [protocol.wbtc] },
-      { address: protocol.oracle, abi: oracleAbi, functionName: "getAssetUSDPrice", args: [protocol.wsteth] }
+      { address: protocol.oracle, abi: oracleAbi, functionName: "getAssetUSDPrice", args: [protocol.wbtc] }
     ],
     query: { refetchInterval: 15_000 }
   });
@@ -65,12 +68,12 @@ export function useProtocolData() {
   return {
     address,
     isConnected,
-    isLoading: pool.isLoading || oracle.isLoading || balances.isLoading || native.isLoading,
-    isError: pool.isError || oracle.isError || risk.isError,
-    refresh: async () => { await Promise.all([pool.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
-    pool: { availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1) },
+    isLoading: pool.isLoading || state.isLoading || oracle.isLoading || balances.isLoading || native.isLoading,
+    isError: pool.isError || state.isError || oracle.isError || risk.isError,
+    refresh: async () => { await Promise.all([pool.refetch(), state.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
+    pool: { paused: state.data?.[0]?.result === true, availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1) },
     position: { debtUsd: valueAt(pool.data, 2), ltvBps: valueAt(pool.data, 3), collateralUsd: valueAt(pool.data, 4), availableBorrow: valueAt(pool.data, 5), accruedInterestUsd: valueAt(pool.data, 6), minimumBorrowUsd: valueAt(pool.data, 7), liquidatable: pool.data?.[8]?.result === true, collateralNative: valueAt(pool.data, 9), collateralWbtc: valueAt(pool.data, 10), collateralWsteth: valueAt(pool.data, 11), fullRepayIcft: valueAt(fullRepay.data, 0) },
-    prices: { eth: valueAt(oracle.data, 0), icft: valueAt(oracle.data, 1), wbtc: valueAt(oracle.data, 2), wsteth: valueAt(oracle.data, 3) },
+    prices: { eth: valueAt(oracle.data, 0), icft: valueAt(oracle.data, 1), wbtc: valueAt(oracle.data, 2), wsteth: 0n },
     risk: { maxLtvBps: valueAt(risk.data, 0), liquidationThresholdBps: valueAt(risk.data, 1), targetLtvBps: valueAt(risk.data, 2), liquidationBonusBps: valueAt(risk.data, 3), borrowRateBps: valueAt(risk.data, 4) },
     balances: { native: native.data?.value ?? 0n, icft: valueAt(balances.data, 0), wbtc: valueAt(balances.data, 1), wsteth: valueAt(balances.data, 2) }
   };
