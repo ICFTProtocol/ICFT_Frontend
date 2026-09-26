@@ -11,7 +11,7 @@ const setup = [
 ] as const;
 
 const flows = [
-  ["Borrow", "Deposit ETH, wBTC or wstETH", "Review borrowing capacity", "Borrow ICFT and monitor your LTV", "/dapp"],
+  ["Borrow", "Deposit ETH or wBTC", "Review borrowing capacity", "Borrow ICFT and monitor your LTV", "/dapp"],
 ] as const;
 
 export default function StartPage() {

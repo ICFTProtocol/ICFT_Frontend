@@ -10,7 +10,7 @@ import ui from "./workspace.module.css";
 import { useProtocolData } from "./useProtocolData";
 import { useWalletActivity } from "./useWalletActivity";
 
-const assetMeta = [{ id: "ETH", name: "Native Ether" }, { id: "wBTC", name: "Wrapped Bitcoin" }, { id: "wstETH", name: "Wrapped staked Ether" }];
+const assetMeta = [{ id: "ETH", name: "Native Ether" }, { id: "wBTC", name: "Wrapped Bitcoin" }];
 
 export function WorkspaceView({ view }: { view: string }) {
   const data = useProtocolData();
@@ -26,7 +26,7 @@ export function WorkspaceView({ view }: { view: string }) {
 
   if (view === "positions") return <Page title="Your positions" sub={connected ? "Live account state from Ethereum Sepolia" : "Connect your Sepolia wallet to load a position"}>
     <section className={ui.overviewGrid}><Stat label="Total collateral" value={usd(data.position.collateralUsd)} detail="Live oracle value" /><Stat label="Outstanding debt" value={usd(data.position.debtUsd)} detail={`Interest ${usd(data.position.accruedInterestUsd, 6)}`} /><Stat label="Current LTV" value={data.position.debtUsd === 0n ? "0.0%" : bps(data.position.ltvBps)} detail={data.position.liquidatable ? "Liquidation eligible" : `Threshold ${liquidation}`} /></section>
-    <section className={ui.card}><div className={ui.cardHead}><div><span>COLLATERAL BASKET</span><h3>{connected ? "Your deposited assets" : "Wallet not connected"}</h3></div><Link className={styles.mainButton} href={action("Deposit")}>Deposit collateral →</Link></div><AssetLine asset="ETH" value={amount(data.position.collateralNative)} detail={usd(data.prices.eth)} /><AssetLine asset="wBTC" value={amount(data.position.collateralWbtc, 8)} detail={usd(data.prices.wbtc)} /><AssetLine asset="wstETH" value={amount(data.position.collateralWsteth)} detail={usd(data.prices.wsteth)} /></section>
+    <section className={ui.card}><div className={ui.cardHead}><div><span>COLLATERAL BASKET</span><h3>{connected ? "Your deposited assets" : "Wallet not connected"}</h3></div><Link className={styles.mainButton} href={action("Deposit")}>Deposit collateral →</Link></div><AssetLine asset="ETH" value={amount(data.position.collateralNative)} detail={usd(data.prices.eth)} /><AssetLine asset="wBTC" value={amount(data.position.collateralWbtc, 8)} detail={usd(data.prices.wbtc)} /></section>
     <section className={ui.card}><div className={ui.cardHead}><div><span>DEBT MANAGEMENT</span><h3>Live borrowing controls</h3></div><b>{amount(data.position.availableBorrow)} ICFT available</b></div><div className={ui.actionCards}><Action title="Borrow ICFT" text={`Current model APR ${apr}.`} href={action("Borrow")} icon="↗" /><Action title="Repay debt" text="Uses an exact full-repay MAX." href={action("Repay")} icon="↓" /><Action title="Withdraw" text="Contract verifies post-withdraw LTV." href={action("Withdraw")} icon="−" /></div></section>
   </Page>;
 
@@ -53,10 +53,10 @@ export function WorkspaceView({ view }: { view: string }) {
 function Page({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) { return <section className={ui.view}><div className={ui.viewHead}><div><span>ICFT / WORKSPACE</span><h2>{title}</h2><p>{sub}</p></div><Link className={styles.connect} href="/dapp">Action center ↗</Link></div>{children}</section>; }
 function Stat({ label, value, detail }: { label: string; value: string; detail: string }) { return <article className={ui.stat}><span>{label}</span><b>{value}</b><small>{detail}</small></article>; }
 function Action({ icon, title, text, href }: { icon: string; title: string; text: string; href: string }) { return <Link className={ui.actionCard} href={href}><i>{icon}</i><b>{title}<small>{text}</small></b><span>→</span></Link>; }
-function AssetLine({ asset, value, detail }: { asset: string; value: string; detail: string }) { return <div className={ui.tableRow}><div className={ui.asset}><i>{asset === "wstETH" ? "S" : asset[0]}</i><b>{asset}<small>Deposited collateral</small></b></div><b>{value}</b><div /><div><b>{detail}</b><small>Live oracle price</small></div></div>; }
+function AssetLine({ asset, value, detail }: { asset: string; value: string; detail: string }) { return <div className={ui.tableRow}><div className={ui.asset}><i>{asset[0]}</i><b>{asset}<small>Deposited collateral</small></b></div><b>{value}</b><div /><div><b>{detail}</b><small>Live oracle price</small></div></div>; }
 function Feed({ title, value, detail, ok }: { title: string; value: string; detail: string; ok: boolean }) { return <article className={ui.feed}><i className={ok ? ui.success : ""}>{ok ? "✓" : "!"}</i><div><b>{title}<small>{detail}</small></b></div><strong>{value}</strong></article>; }
 function Toggle({ title, text, checked, onChange, disabled = false }: { title: string; text: string; checked: boolean; onChange: (value: boolean) => void; disabled?: boolean }) { return <label className={ui.toggle}><div><b>{title}</b><p>{text}</p></div><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} disabled={disabled} /><span /></label>; }
-function priceFor(data: ReturnType<typeof useProtocolData>, asset: string) { return asset === "ETH" ? data.prices.eth : asset === "wBTC" ? data.prices.wbtc : data.prices.wsteth; }
+function priceFor(data: ReturnType<typeof useProtocolData>, asset: string) { return asset === "ETH" ? data.prices.eth : data.prices.wbtc; }
 function amount(value: bigint, decimals = 18) { return new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(Number(formatUnits(value, decimals))); }
 function usd(value: bigint, fraction = 2) { return `$${new Intl.NumberFormat("en-US", { maximumFractionDigits: fraction }).format(Number(formatUnits(value, 18)))}`; }
 function bps(value: bigint) { return `${(Number(value) / 100).toFixed(1)}%`; }

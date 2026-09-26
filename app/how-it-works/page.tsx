@@ -5,7 +5,7 @@ import styles from "./how.module.css";
 export const metadata: Metadata = { title: "How it works", description: "Learn how ICFT collateralized borrowing, the protocol credit reserve, risk limits and liquidations work." };
 
 const stages = [
-  ["01", "Choose collateral", "Deposit ETH, wBTC or wstETH from the collateral list. The protocol uses the oracle's USD price to establish the value supporting your position."],
+  ["01", "Choose collateral", "Deposit ETH or wBTC from the active collateral list. The protocol uses the oracle's USD price to establish the value supporting your position."],
   ["02", "Open credit", "Borrow ICFT only within the capacity shown by the dApp. Borrowing capacity is based on collateral value, current debt and the maximum loan-to-value limit."],
   ["03", "Manage the position", "Watch the health of your position. Repay ICFT to reduce debt, or add collateral when price moves reduce your safety margin."],
   ["04", "Close on your terms", "Repay your outstanding debt, then withdraw collateral that is no longer needed. All actions are confirmed in your own wallet."],
@@ -21,7 +21,7 @@ export default function HowItWorksPage() {
 
     <section className={`${styles.hero} shell`}>
       <div><span className="kicker">ICFT / HOW IT WORKS</span><h1>Credit, without<br /><em>the hidden parts.</em></h1><p>ICFT is a collateralized lending protocol. Users borrow ICFT against approved on-chain assets from a protocol-owned credit reserve.</p><div className={styles.actions}><Link className="button primary" href="/dapp">Open dApp <b>↗</b></Link><Link className="button ghost" href="/faq">Read FAQ</Link></div></div>
-      <div className={styles.diagram} aria-label="Collateral flows into an ICFT credit position"><span className={styles.asset}>ETH</span><span className={styles.asset}>wBTC</span><span className={styles.asset}>wstETH</span><div className={styles.pool}>ICFT<br /><small>CREDIT POOL</small></div><i>↓</i><strong>YOUR POSITION</strong></div>
+      <div className={styles.diagram} aria-label="Collateral flows into an ICFT credit position"><span className={styles.asset}>ETH</span><span className={styles.asset}>wBTC</span><div className={styles.pool}>ICFT<br /><small>CREDIT POOL</small></div><i>↓</i><strong>YOUR POSITION</strong></div>
     </section>
 
     <section className={`${styles.intro} shell`}><span className="kicker">THE SIMPLE VERSION</span><h2>Collateral stays on-chain.<br />Credit is issued against it.</h2><p>When you deposit an approved asset, the lending pool records its value in USD. You can borrow ICFT up to the protocol's risk limit. As long as the position remains healthy, you decide when to repay and withdraw.</p></section>

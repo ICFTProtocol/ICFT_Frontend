@@ -5,7 +5,7 @@ import styles from "./roadmap.module.css";
 export const metadata: Metadata = { title: "Roadmap", description: "ICFT's path from the current Sepolia baseline through testnet hardening and production readiness." };
 
 const phases = [
-  ["NOW", "Upgradeable Sepolia baseline", "Live", ["ETH, wBTC and wstETH collateral", "Borrowing, repayment, collateral management", "LP shares and insurance reserve", "Public dApp, status and transparent risk pages"]],
+  ["NOW", "Upgradeable Sepolia baseline", "Maintenance", ["ETH and wBTC collateral after oracle remediation", "Borrowing, repayment and collateral management under controlled testing", "Protocol-owned Fund A credit inventory", "Public dApp, status and transparent risk pages"]],
   ["NEXT", "Testnet hardening", "Planned", ["Independent testing of user and liquidation flows", "Oracle and RPC resilience checks", "Upgrade simulations and storage-layout validation", "Operational monitoring for the liquidation bot"]],
   ["THEN", "Production readiness", "Not live", ["Formal audit and remediation cycle", "Governance and privileged-role design", "Token distribution controls and vesting design", "Real liquidity and market-integration requirements"]],
   ["LATER", "Protocol expansion", "Exploratory", ["Deeper liquidity routes", "Additional approved collateral after risk review", "Automation and integrator tooling", "Progressive decentralization of protocol control"]],
