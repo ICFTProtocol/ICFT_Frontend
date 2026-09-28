@@ -6,7 +6,9 @@ import { usePublicClient } from "wagmi";
 import { protocol, protocolEventsAbi } from "../../lib/protocol";
 
 export type ActivityItem = { id: string; title: string; amount: string; detail: string; block: bigint; ok: boolean };
-const FROM_BLOCK = 11_600_000n;
+// Query only the current clean Sepolia deployment. Public RPC endpoints commonly
+// reject broad historical log ranges even when the event is wallet-filtered.
+const FROM_BLOCK = 11_799_163n;
 
 export function useWalletActivity(address?: Address) {
   const client = usePublicClient();
