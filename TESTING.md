@@ -24,7 +24,7 @@ Use a dedicated Ethereum Sepolia wallet. Never use a wallet containing mainnet f
 3. Borrow: after collateral is confirmed, borrow an amount below displayed capacity. Confirm ICFT balance, debt, LTV and Activity update.
 4. Repay: select `Repay`, use a partial amount or `MAX`, approve ICFT, then confirm repayment. Verify the approval and repayment hashes in Etherscan.
 5. Withdraw ETH: withdraw a small safe amount. Verify the wallet balance and collateral balance change. Attempting an unsafe withdrawal must revert rather than bypass LTV checks.
-6. Deposit ERC-20 collateral: for wBTC and wstETH, approve then deposit a small test amount. Confirm both the approval and deposit transactions.
+6. Deposit ERC-20 collateral: for wBTC, approve then deposit a small test amount if the project has supplied the registered asset. Confirm both the approval and deposit transactions.
 7. Open Market status and verify it does not display an unverified market cap, TVL, price, or buy/sell route while no official venue exists.
 8. Confirm Fund A inventory and utilization are displayed without presenting a public LP vault, LP assets, supply, redemption, or yield claim.
 9. Confirm USDT settlement is labelled planned and has no active transaction flow until the on-chain upgrade and market-execution controls are approved.
@@ -53,6 +53,6 @@ The following manual smoke-test passed against the deployed Ethereum Sepolia pro
 
 The live protocol has a `$100` minimum borrow. The dApp reads this value from `LendingPool.minimumBorrowUSD()` and shows it in the borrow flow.
 
-`wBTC` and `wstETH` deposit flows remain pending a team-controlled source of those currently configured Sepolia test assets. Do not deploy replacement token mocks for this check: the active LendingPool only accepts its registered collateral addresses.
+`wBTC` deposit flow remains pending a team-controlled source of the configured Sepolia test asset. `wstETH` is intentionally disabled. Do not deploy replacement token mocks for this check: the active LendingPool only accepts its registered collateral address.
 
 Before publishing a demo, add the Etherscan transaction hashes, browser/version, viewport and tester initials to the release record maintained by the team.

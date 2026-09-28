@@ -43,5 +43,5 @@ For each issue, send the page URL, connected network, action, amount, wallet pub
 ## Current Limits
 
 - Testnet only; balances and assets have no monetary value.
-- The public demo focuses on ETH collateral. wBTC and wstETH require team-provided test assets because the currently registered Sepolia assets do not expose a public faucet.
+- The public demo focuses on ETH collateral. wBTC requires a team-provided test asset because the currently registered Sepolia asset does not expose a public faucet. wstETH is disabled in the fresh Sepolia release.
 - This is not a promise of mainnet availability, yield, price stability, or liquidation profitability.

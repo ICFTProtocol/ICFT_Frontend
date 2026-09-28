@@ -11,7 +11,6 @@ type ContractRequest = { address: `0x${string}`; abi: readonly unknown[]; functi
 
 function assetConfig(asset: string) {
   if (asset === "wBTC") return { address: protocol.wbtc, decimals: 8 };
-  if (asset === "wstETH") return { address: protocol.wsteth, decimals: 18 };
   return { address: protocol.icft, decimals: 18 };
 }
 

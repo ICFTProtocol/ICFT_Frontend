@@ -11,8 +11,7 @@ export const protocol = {
   riskEngine: address(process.env.NEXT_PUBLIC_RISK_ENGINE_ADDRESS ?? "0x5165b90893fAa2647cA29DbE46c4969780cA0bcC"),
   interestRateModel: address(process.env.NEXT_PUBLIC_INTEREST_RATE_MODEL_ADDRESS ?? "0xFe6DcaE198d0E66eC32A6d8Cac36a4f232d35feC"),
   lendingPool: address(process.env.NEXT_PUBLIC_LENDING_POOL_ADDRESS ?? "0xAA34c13F7932eBb77dA286F35Dc95aA13CD7626A"),
-  wbtc: address(process.env.NEXT_PUBLIC_WBTC_ADDRESS ?? "0x29f2D40B0605204364af54EC677bD022dA425d03"),
-  wsteth: address(process.env.NEXT_PUBLIC_WSTETH_ADDRESS ?? "0xB82381A3fBD3FaFA77B3a7bE693342618240067b")
+  wbtc: address(process.env.NEXT_PUBLIC_WBTC_ADDRESS ?? "0x29f2D40B0605204364af54EC677bD022dA425d03")
 } as const;
 
 export const publicClient = createPublicClient({ chain: protocol.chain, transport: http(protocol.rpcUrl) });

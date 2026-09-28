@@ -29,7 +29,7 @@ Goal: validate that a normal first-time user can understand the current Fund A c
 5. Confirm wallet ICFT balance, outstanding USD debt, LTV, position page, activity record, and transaction link update after confirmation.
 6. Make a partial ICFT repayment. Confirm debt and activity update.
 7. Use `MAX` to close the remaining debt, then withdraw collateral.
-8. Deposit small amounts of the configured wBTC and wstETH only if the project supplied the exact registered Sepolia assets.
+8. Deposit a small amount of the configured wBTC only if the project supplied the exact registered Sepolia asset. Confirm that wstETH is not offered as active collateral.
 
 ### Expected Negative UX
 
@@ -50,7 +50,7 @@ Goal: find incorrect assumptions at risk, state, permission, and transaction bou
 3. Confirm a healthy position cannot be liquidated.
 4. Confirm an unauthorized account cannot call liquidation paths.
 5. Confirm a liquidator using a `maxICFTToRepay` below the calculated requirement reverts.
-6. Test ETH, wBTC, and wstETH collateral rounding around minimal token units where practical.
+6. Test ETH and wBTC collateral rounding around minimal token units where practical. Verify wstETH is rejected or absent from the current release.
 
 ### Accounting and Time
 
