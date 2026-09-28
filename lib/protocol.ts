@@ -6,11 +6,11 @@ const address = (value: string): Address => value as Address;
 export const protocol = {
   chain: sepolia,
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL ?? "https://ethereum-sepolia-rpc.publicnode.com",
-  icft: address(process.env.NEXT_PUBLIC_ICFT_ADDRESS ?? "0x06671cEafEa42fd9Fe97A8D736Ae8e4bA0C4A2a4"),
-  oracle: address(process.env.NEXT_PUBLIC_PRICE_ORACLE_ADDRESS ?? "0x93CA63721859760c3688AddB3e61dfE2B1a4bE56"),
-  riskEngine: address(process.env.NEXT_PUBLIC_RISK_ENGINE_ADDRESS ?? "0x1FD24725fDF3E0e455dFc76B2Ec4fe0b6fA5f812"),
-  interestRateModel: address(process.env.NEXT_PUBLIC_INTEREST_RATE_MODEL_ADDRESS ?? "0xE5B9d722D92b297e4766407646bA6744C5290b0E"),
-  lendingPool: address(process.env.NEXT_PUBLIC_LENDING_POOL_ADDRESS ?? "0x0F7933DC1FD07473e187dd5F278Bbdf10D73ECec"),
+  icft: address(process.env.NEXT_PUBLIC_ICFT_ADDRESS ?? "0xd3607F62dE598546e11f2C7bA8f3fDE042F652fa"),
+  oracle: address(process.env.NEXT_PUBLIC_PRICE_ORACLE_ADDRESS ?? "0x59DD43D580A4aeBE84FdE44E748DB7F9CdA905a4"),
+  riskEngine: address(process.env.NEXT_PUBLIC_RISK_ENGINE_ADDRESS ?? "0x5165b90893fAa2647cA29DbE46c4969780cA0bcC"),
+  interestRateModel: address(process.env.NEXT_PUBLIC_INTEREST_RATE_MODEL_ADDRESS ?? "0xFe6DcaE198d0E66eC32A6d8Cac36a4f232d35feC"),
+  lendingPool: address(process.env.NEXT_PUBLIC_LENDING_POOL_ADDRESS ?? "0xAA34c13F7932eBb77dA286F35Dc95aA13CD7626A"),
   wbtc: address(process.env.NEXT_PUBLIC_WBTC_ADDRESS ?? "0x29f2D40B0605204364af54EC677bD022dA425d03"),
   wsteth: address(process.env.NEXT_PUBLIC_WSTETH_ADDRESS ?? "0xB82381A3fBD3FaFA77B3a7bE693342618240067b")
 } as const;
