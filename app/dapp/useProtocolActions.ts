@@ -69,7 +69,9 @@ export function useProtocolActions() {
       return true;
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Transaction could not be completed.";
-      if (message.includes("BorrowBelowMinimum")) {
+      if (message.includes("User rejected") || message.includes("User denied")) {
+        setError("Transaction was cancelled in your wallet. No funds were sent and no on-chain state changed.");
+      } else if (message.includes("BorrowBelowMinimum")) {
         setError("Minimum borrow is $100 worth of ICFT. Increase collateral and borrow at least 100 ICFT.");
       } else if (message.includes("BorrowExceedsLTV")) {
         setError(action === "Withdraw"
