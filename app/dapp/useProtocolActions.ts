@@ -4,7 +4,7 @@ import { useState } from "react";
 import { parseUnits } from "viem";
 import { sepolia } from "wagmi/chains";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { erc20Abi, lendingPoolAbi, protocol } from "../../lib/protocol";
+import { erc20Abi, lendingPoolAbi, oracleAbi, protocol } from "../../lib/protocol";
 
 export type ProtocolAction = "Deposit" | "Borrow" | "Repay" | "Withdraw";
 type ContractRequest = { address: `0x${string}`; abi: readonly unknown[]; functionName: string; args?: readonly unknown[]; value?: bigint };
@@ -42,7 +42,7 @@ export function useProtocolActions() {
     await sendAndWait({ address: token, abi: erc20Abi, functionName: "approve", args: [spender, amount] }, "Confirm token approval");
   }
 
-  async function submit(action: ProtocolAction, asset: string, rawAmount: string) {
+  async function submit(action: ProtocolAction, asset: string, rawAmount: string, repayAll = false) {
     setError(undefined); setTxHash(undefined);
     try {
       if (!address) throw new Error("Connect a wallet before submitting a transaction.");
@@ -52,7 +52,16 @@ export function useProtocolActions() {
       if (paused && action !== "Repay") throw new Error("Protocol maintenance is active. Deposits, borrowing and withdrawals are temporarily disabled; repayment remains available.");
       if (!rawAmount || Number(rawAmount) <= 0) throw new Error("Enter an amount greater than zero.");
       const config = assetConfig(asset);
-      const amount = parseUnits(rawAmount, config.decimals);
+      let amount = parseUnits(rawAmount, config.decimals);
+
+      if (action === "Repay" && repayAll) {
+        // Interest continues accruing between a displayed quote, approval and repayment.
+        // The contract caps an overpayment at the current full debt, so this tiny allowance
+        // buffer cannot transfer more ICFT than is owed.
+        const debt = await publicClient.readContract({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [address] });
+        const freshQuote = await publicClient.readContract({ address: protocol.oracle, abi: oracleAbi, functionName: "convertUSDToICFT", args: [debt, true] });
+        amount = freshQuote + 10n ** 15n; // 0.001 ICFT
+      }
 
       if (action === "Deposit") {
         if (asset === "ETH") await sendAndWait({ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "depositCollateral", value: amount }, "Confirm ETH deposit");
