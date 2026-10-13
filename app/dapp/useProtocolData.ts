@@ -4,10 +4,14 @@ import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { zeroAddress } from "viem";
 import { erc20Abi, interestRateModelAbi, lendingPoolAbi, oracleAbi, protocol, riskEngineAbi } from "../../lib/protocol";
 
-const valueAt = (data: readonly { result?: unknown }[] | undefined, index: number) => {
+type ReadResult = { result?: unknown; status?: "success" | "failure" };
+
+const valueAt = (data: readonly ReadResult[] | undefined, index: number) => {
   const value = data?.[index]?.result;
   return typeof value === "bigint" ? value : 0n;
 };
+
+const hasFailedRead = (data: readonly ReadResult[] | undefined) => data?.some((result) => result.status === "failure") ?? false;
 
 export function useProtocolData() {
   const { address, isConnected } = useAccount();
@@ -67,7 +71,11 @@ export function useProtocolData() {
     address,
     isConnected,
     isLoading: pool.isLoading || state.isLoading || oracle.isLoading || balances.isLoading || native.isLoading,
-    isError: pool.isError || state.isError || oracle.isError || risk.isError,
+    // useReadContracts allows individual calls to fail, so a failed mandatory read must not
+    // silently become a trustworthy zero-valued position in the UI.
+    isError: pool.isError || state.isError || oracle.isError || risk.isError
+      || hasFailedRead(pool.data) || hasFailedRead(state.data) || hasFailedRead(oracle.data) || hasFailedRead(risk.data)
+      || (valueAt(pool.data, 2) > 0n && hasFailedRead(fullRepay.data)),
     refresh: async () => { await Promise.all([pool.refetch(), state.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
     pool: { paused: state.data?.[0]?.result === true, availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1) },
     position: { debtUsd: valueAt(pool.data, 2), ltvBps: valueAt(pool.data, 3), collateralUsd: valueAt(pool.data, 4), availableBorrow: valueAt(pool.data, 5), accruedInterestUsd: valueAt(pool.data, 6), minimumBorrowUsd: valueAt(pool.data, 7), liquidatable: pool.data?.[8]?.result === true, collateralNative: valueAt(pool.data, 9), collateralWbtc: valueAt(pool.data, 10), fullRepayIcft: valueAt(fullRepay.data, 0) },
