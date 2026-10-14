@@ -20,17 +20,24 @@ export function useProtocolData() {
     contracts: [
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableLiquidity" },
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getUtilization" },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [user] },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLTV", args: [user] },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralValueUSD", args: [user] },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableBorrow", args: [user] },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCurrentInterest", args: [user] },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "minimumBorrowUSD" },
-      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "isLiquidatable", args: [user] }
-      ,{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [user, zeroAddress] }
-      ,{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [user, protocol.wbtc] }
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "minimumBorrowUSD" }
     ],
     query: { refetchInterval: 15_000 }
+  });
+  // Position methods reject the zero address. Do not issue those reads until a wallet exists,
+  // otherwise every first-time visitor sees a false "read failed" state.
+  const position = useReadContracts({
+    contracts: isConnected && address ? [
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getLTV", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralValueUSD", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getAvailableBorrow", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCurrentInterest", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "isLiquidatable", args: [address] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [address, zeroAddress] },
+      { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getCollateralBalance", args: [address, protocol.wbtc] }
+    ] : [],
+    query: { enabled: isConnected, refetchInterval: 15_000 }
   });
   const state = useReadContracts({
     contracts: [{ address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "paused" }],
@@ -53,8 +60,8 @@ export function useProtocolData() {
   });
   const native = useBalance({ address, query: { enabled: isConnected, refetchInterval: 15_000 } });
   const fullRepay = useReadContracts({
-    contracts: [{ address: protocol.oracle, abi: oracleAbi, functionName: "convertUSDToICFT", args: [valueAt(pool.data, 2), true] }],
-    query: { enabled: isConnected && valueAt(pool.data, 2) > 0n, refetchInterval: 15_000 }
+    contracts: [{ address: protocol.oracle, abi: oracleAbi, functionName: "convertUSDToICFT", args: [valueAt(position.data, 0), true] }],
+    query: { enabled: isConnected && valueAt(position.data, 0) > 0n, refetchInterval: 15_000 }
   });
   const risk = useReadContracts({
     contracts: [
@@ -70,15 +77,17 @@ export function useProtocolData() {
   return {
     address,
     isConnected,
-    isLoading: pool.isLoading || state.isLoading || oracle.isLoading || balances.isLoading || native.isLoading,
+    isLoading: pool.isLoading || state.isLoading || oracle.isLoading || risk.isLoading
+      || (isConnected && (position.isLoading || balances.isLoading || native.isLoading)),
     // useReadContracts allows individual calls to fail, so a failed mandatory read must not
     // silently become a trustworthy zero-valued position in the UI.
     isError: pool.isError || state.isError || oracle.isError || risk.isError
       || hasFailedRead(pool.data) || hasFailedRead(state.data) || hasFailedRead(oracle.data) || hasFailedRead(risk.data)
-      || (valueAt(pool.data, 2) > 0n && hasFailedRead(fullRepay.data)),
-    refresh: async () => { await Promise.all([pool.refetch(), state.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
+      || (isConnected && (position.isError || balances.isError || native.isError || hasFailedRead(position.data)))
+      || (isConnected && valueAt(position.data, 0) > 0n && hasFailedRead(fullRepay.data)),
+    refresh: async () => { await Promise.all([pool.refetch(), position.refetch(), state.refetch(), oracle.refetch(), balances.refetch(), native.refetch(), fullRepay.refetch(), risk.refetch()]); },
     pool: { paused: state.data?.[0]?.result === true, availableLiquidity: valueAt(pool.data, 0), utilizationBps: valueAt(pool.data, 1) },
-    position: { debtUsd: valueAt(pool.data, 2), ltvBps: valueAt(pool.data, 3), collateralUsd: valueAt(pool.data, 4), availableBorrow: valueAt(pool.data, 5), accruedInterestUsd: valueAt(pool.data, 6), minimumBorrowUsd: valueAt(pool.data, 7), liquidatable: pool.data?.[8]?.result === true, collateralNative: valueAt(pool.data, 9), collateralWbtc: valueAt(pool.data, 10), fullRepayIcft: valueAt(fullRepay.data, 0) },
+    position: { debtUsd: valueAt(position.data, 0), ltvBps: valueAt(position.data, 1), collateralUsd: valueAt(position.data, 2), availableBorrow: valueAt(position.data, 3), accruedInterestUsd: valueAt(position.data, 4), minimumBorrowUsd: valueAt(pool.data, 2), liquidatable: position.data?.[5]?.result === true, collateralNative: valueAt(position.data, 6), collateralWbtc: valueAt(position.data, 7), fullRepayIcft: valueAt(fullRepay.data, 0) },
     prices: { eth: valueAt(oracle.data, 0), icft: valueAt(oracle.data, 1), wbtc: valueAt(oracle.data, 2) },
     risk: { maxLtvBps: valueAt(risk.data, 0), liquidationThresholdBps: valueAt(risk.data, 1), targetLtvBps: valueAt(risk.data, 2), liquidationBonusBps: valueAt(risk.data, 3), borrowRateBps: valueAt(risk.data, 4) },
     balances: { native: native.data?.value ?? 0n, icft: valueAt(balances.data, 0), wbtc: valueAt(balances.data, 1) }

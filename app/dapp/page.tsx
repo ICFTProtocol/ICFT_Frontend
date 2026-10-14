@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import styles from "./prototype.module.css";
 import flow from "./flow.module.css";
 import transaction from "./transaction.module.css";
@@ -26,6 +27,7 @@ const copy: Record<Action, { title: string; description: string; button: string;
 export default function DappHome() {
   const data = useProtocolData();
   const tx = useProtocolActions();
+  const { openConnectModal } = useConnectModal();
   const [action, setAction] = useState<Action | null>(null);
   const [asset, setAsset] = useState("ETH");
   const [amount, setAmount] = useState("");
@@ -35,6 +37,10 @@ export default function DappHome() {
   const hasExecutableBorrow = availableBorrowUsd >= data.position.minimumBorrowUsd && data.position.minimumBorrowUsd > 0n;
 
   function openAction(next: Action, nextAsset = next === "Deposit" || next === "Withdraw" ? "ETH" : "ICFT") {
+    if (!data.isConnected) {
+      openConnectModal?.();
+      return;
+    }
     if (data.isError || (data.pool.paused && next !== "Repay") || (next === "Borrow" && !hasExecutableBorrow)) return;
     setAction(next); setAsset(nextAsset); setAmount(""); setRepayAll(false); setStep("entry");
   }
