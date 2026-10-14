@@ -24,8 +24,8 @@ export function useProtocolData() {
     ],
     query: { refetchInterval: 15_000 }
   });
-  // Position methods reject the zero address. Do not issue those reads until a wallet exists,
-  // otherwise every first-time visitor sees a false "read failed" state.
+  // Keep account-specific reads out of the mandatory startup batch. A failed position read
+  // must not turn the entire public workspace into a false "read failed" state.
   const position = useReadContracts({
     contracts: isConnected && address ? [
       { address: protocol.lendingPool, abi: lendingPoolAbi, functionName: "getDebt", args: [address] },
